@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: yanistest2
+name: yanistest2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: yanistest2
+  template:
+    metadata:
+      labels:
+        app: yanistest2
+	deployment: yanistest2
+    spec:
+      containers:
+      - name: yanistest2
+        image: ghcr.io/bbhe11/auftrag6:v1
+        ports:
+        - containerPort: 8080
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: yanistest2
+spec:
+  selector:
+    app: yanistest2
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: yanistest2
+spec:
+  to:
+    kind: Service
+    name: yanistest2
+  port:
+    targetPort: 8080
+  tls:
+    termination: edge
