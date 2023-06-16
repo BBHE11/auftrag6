@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: yanistest2
+  labels:
+    app: yanistest2
+    app.kubernetes.io/component: yanistest2
+    app.kubernetes.io/instance: yanistest2
+    app.kubernetes.io/name: yanistest2
+    app.kubernetes.io/part-of: yanistest2
+    app.openshift.io/runtime: httpd
+    app.openshift.io/runtime-version: 2.4-el7  
+name: yanistest2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: yanistest2
+  template:
+    metadata:
+      labels:
+        app: yanistest2
+    spec:
+      containers:
+      - name: yanistest2
+        image: image-registry.openshift-image-registry.svc:5000/zlic-yblaser1/dsgikjgsjgsg@sha256:518a5b63de266400dfc6fd6f69efb435e91d76d65df64a4bf13c5a1e894ca158
+        ports:
+        - containerPort: 8080
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: yanistest2
+  labels:
+    app: auftrag6
+    app.kubernetes.io/component: yanistest2
+    app.kubernetes.io/instance: yanistest2
+    app.kubernetes.io/name: yanistest2
+    app.kubernetes.io/part-of: yanistest2
+    app.openshift.io/runtime: httpd
+    app.openshift.io/runtime-version: 2.4-el7
+  annotations:
+    app.openshift.io/vcs-ref: ''
+    app.openshift.io/vcs-uri: 'https://github.com/BBHE11/auftrag6.git'
+    openshift.io/generated-by: OpenShiftWebConsole
+spec:
+  selector:
+    app: yanistest2
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 80
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: yanistest2
+spec:
+  to:
+    kind: Service
+    name: yanistest2
+  port:
+    targetPort: 8080
+  tls:
+    termination: edge
