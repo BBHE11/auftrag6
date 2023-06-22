@@ -1,58 +1,102 @@
-﻿kind: Deployment
-apiVersion: apps/v1
-metadata:
-  name: yanistestauftrag6
-name: yanistestauftrag6
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: yanistestauftrag6
-  template:
-    metadata:
-      labels:
-        app: yanistestauftrag6
-    spec:
-      containers:
-      - name: yanistestauftrag6
-        image: ghcr.io/bbhe11/auftrag6:v1
-        ports:
-        - containerPort: 8080
----
-
-apiVersion: v1
-kind: Service
-metadata:
-  name: yanistestauftrag6
-spec:
-  selector:
-    app: yanistestauftrag6
-  ports:
-    - protocol: TCP
-      port: 8080
-      targetPort: 8080
----
-apiVersion: route.openshift.io/v1
-kind: Route
-metadata:
-  name: yanistestauftrag6
-spec:
-  to:
-    kind: Service
-    name: yanistestauftrag6
-  port:
-    targetPort: 8080
-  tls:
-    termination: edge
-
----
-
 kind: Template
 apiVersion: template.openshift.io/v1
 metadata:
-  name: yanistest2
+  name: auftrag-6-2
   annotations:
-    openshift.io/display-name: "Template von Yanis Blaser"
-    description: "HTML seite von Yanis"
+    openshift.io/display-name: "HTML Page based on Auftrag 6.2. Example"
+    description: "A simple HTML Page"
     iconClass: "icon-play"
     tags: "html"
+parameters:
+  - name: APP_NAME
+    description: "The name of the application"
+    value: "html-page"
+  - name: IMAGE
+    description: "The image to use for the application"
+    value: "ghcr.io/benschwarz1982/html-page:v2"
+objects:
+  - kind: Deployment
+    apiVersion: apps/v1
+    metadata:
+      name: ${APP_NAME}
+      labels:
+        app: ${APP_NAME}
+        app.kubernetes.io/component: ${APP_NAME}
+        app.kubernetes.io/instance: ${APP_NAME}
+        app.kubernetes.io/name: ${APP_NAME}
+        app.kubernetes.io/part-of: auftrag-6-2
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: ${APP_NAME}
+      template:
+        metadata:
+          labels:
+            app: ${APP_NAME}
+            deployment: ${APP_NAME}
+        spec:
+          containers:
+            - name: ${APP_NAME}
+              image: '${IMAGE}'
+              ports:
+                - containerPort: 8080
+                  protocol: TCP
+              resources: {}
+              terminationMessagePath: /dev/termination-log
+              terminationMessagePolicy: File
+              imagePullPolicy: IfNotPresent
+          restartPolicy: Always
+          terminationGracePeriodSeconds: 30
+          dnsPolicy: ClusterFirst
+          securityContext: {}
+          schedulerName: default-scheduler
+      strategy:
+        type: RollingUpdate
+        rollingUpdate:
+          maxUnavailable: 25%
+          maxSurge: 25%
+          revisionHistoryLimit: 10
+          progressDeadlineSeconds: 600
+  - kind: Service
+    apiVersion: v1
+    metadata:
+      name: ${APP_NAME}
+      labels:
+        app: ${APP_NAME}
+        app.kubernetes.io/component: ${APP_NAME}
+        app.kubernetes.io/instance: ${APP_NAME}
+        app.kubernetes.io/name: ${APP_NAME}
+        app.kubernetes.io/part-of: auftrag-6-2
+    spec:
+      ports:
+        - name: 8080-tcp
+          protocol: TCP
+          port: 8080
+          targetPort: 8080
+      internalTrafficPolicy: Cluster
+      type: ClusterIP
+      sessionAffinity: None
+      selector:
+        app: ${APP_NAME}
+        deployment: ${APP_NAME}
+  - kind: Route
+    apiVersion: route.openshift.io/v1
+    metadata:
+      name: ${APP_NAME}
+      labels:
+        app: ${APP_NAME}
+        app.kubernetes.io/component: ${APP_NAME}
+        app.kubernetes.io/instance: ${APP_NAME}
+        app.kubernetes.io/name: ${APP_NAME}
+        app.kubernetes.io/part-of: auftrag-6-2
+    spec:
+      to:
+        kind: Service
+        name: ${APP_NAME}
+      port:
+        targetPort: 8080-tcp
+      tls:
+        termination: edge
+        insecureEdgeTerminationPolicy: Redirect
+      wildcardPolicy: None
