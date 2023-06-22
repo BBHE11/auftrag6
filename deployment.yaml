@@ -1,5 +1,5 @@
-kind: Deployment
 apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: yanistestauftrag6
 name: yanistestauftrag6
@@ -17,7 +17,7 @@ spec:
       - name: yanistestauftrag6
         image: ghcr.io/bbhe11/auftrag6:v1
         ports:
-        - containerPort: 8080
+        - containerPort: 8080g
 ---
 
 apiVersion: v1
